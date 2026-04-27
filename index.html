@@ -60,11 +60,13 @@
                     { id: 'c2', doc: "Invoice EAP", claim: "Rp 320 jt", verified: "Rp 320 jt ✓", statusText: "Sesuai" },
                     { id: 'c3', doc: "Partisipasi EAP", claim: "78%", verified: "76% (survei)", statusText: "Selisih kecil" },
                     { id: 'c4', doc: "Remote work infra", claim: "Rp 185 jt", verified: "Rp 185 jt ✓", statusText: "Sesuai" },
-                    { id: 'c5', doc: "Sertifikat pelatihan", claim: "6 sesi", verified: "6 sesi ✓", statusText: "Sesuai" }
+                    { id: 'c5', doc: "Sertifikat pelatihan", claim: "6 sesi", verified: "6 sesi ✓", statusText: "Sesuai" },
+                    { id: 'c6', doc: "Log Absensi (Lembur)", claim: "1.2 Jam/minggu", verified: "1.2 Jam/minggu ✓", statusText: "Sesuai" },
+                    { id: 'c7', doc: "Laporan Vendor (eNPS)", claim: "Skor 82", verified: "Skor 82 ✓", statusText: "Sesuai" }
                 ],
                 logs: [
                     { time: "12 Nov 09:14", text: "Dokumen diterima dari PT Nusantara Digital" },
-                    { time: "15 Nov 14:02", text: "Cross-check dimulai — 5 item diverifikasi" },
+                    { time: "15 Nov 14:02", text: "Cross-check dimulai — 7 item diverifikasi" },
                     { time: "20 Nov 16:45", text: "Skor draft ditetapkan: 87" }
                 ]
             },
@@ -323,6 +325,9 @@
                             <button onClick={() => setActiveTab('vault')} className={`whitespace-nowrap flex-1 md:w-full flex items-center justify-center md:justify-start gap-3 p-3.5 md:p-4 rounded-xl font-bold transition-all ${activeTab === 'vault' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100 bg-white md:bg-transparent border md:border-none'}`}>
                                 <i className="fa-solid fa-database"></i> Vault
                             </button>
+                            <button onClick={() => setActiveTab('metrics')} className={`whitespace-nowrap flex-1 md:w-full flex items-center justify-center md:justify-start gap-3 p-3.5 md:p-4 rounded-xl font-bold transition-all ${activeTab === 'metrics' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100 bg-white md:bg-transparent border md:border-none'}`}>
+                                <i className="fa-solid fa-chart-pie"></i> Metrik Data
+                            </button>
                             <button onClick={() => setActiveTab('simulation')} className={`whitespace-nowrap flex-1 md:w-full flex items-center justify-center md:justify-start gap-3 p-3.5 md:p-4 rounded-xl font-bold transition-all ${activeTab === 'simulation' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100 bg-white md:bg-transparent border md:border-none'}`}>
                                 <i className="fa-solid fa-chart-line"></i> Simulasi
                             </button>
@@ -436,7 +441,14 @@
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                             <div><label className="block text-sm font-semibold text-slate-700 mb-1.5">Tanggal Transaksi</label><input type="date" className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-sky-500 bg-white" /></div>
                                             <div><label className="block text-sm font-semibold text-slate-700 mb-1.5">Deskripsi Klaim</label><input type="text" placeholder="Contoh: Invoice Halodoc Q3" className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-sky-500 bg-white" /></div>
-                                            <div><label className="block text-sm font-semibold text-slate-700 mb-1.5">Kategori Dimensi</label><select className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-sky-500 bg-white"><option>Kesehatan Fisik</option><option>Kesehatan Mental</option><option>Kesejahteraan Finansial</option><option>Sosial & Keterlibatan</option></select></div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Kategori Dimensi</label>
+                                                <select className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-sky-500 bg-white">
+                                                    <option>Keselamatan dan Ergonomi Kerja</option>
+                                                    <option>Kesehatan Fisik dan Asuransi</option>
+                                                    <option>Kesehatan Mental dan Psikologis</option>
+                                                </select>
+                                            </div>
                                             <div><label className="block text-sm font-semibold text-slate-700 mb-1.5">Nominal (Rp)</label><input type="number" placeholder="Contoh: 15000000" className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-sky-500 bg-white" /></div>
                                         </div>
                                         <div onClick={() => setUploadedFiles([...uploadedFiles, { name: `Bukti_Klaim_00${uploadedFiles.length + 1}.pdf`, size: '2.4 MB' }])} className="border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center hover:bg-white hover:border-sky-500 transition-colors cursor-pointer group bg-white shadow-sm">
@@ -469,6 +481,83 @@
                                             </div>
                                         </div>
                                     )}
+                                </div>
+                            )}
+
+                            {activeTab === 'metrics' && (
+                                <div className="fade-in">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 border-b pb-4">
+                                        <h2 className="text-xl md:text-2xl font-bold text-slate-900">Metrik Operasional (Non-Finansial)</h2>
+                                    </div>
+                                    
+                                    <div className="bg-sky-50 border border-sky-200 rounded-2xl p-5 mb-8 flex gap-4 items-start text-sm text-sky-900">
+                                        <i className="fa-solid fa-circle-info text-xl text-sky-600 mt-0.5 shrink-0"></i>
+                                        <div>
+                                            <p className="font-bold mb-1 text-base">Prinsip Maker vs Checker</p>
+                                            <p className="leading-relaxed font-medium">HR bertindak sebagai <strong>Maker</strong> (penginput data operasional internal). Auditor bertindak sebagai <strong>Checker</strong> independen yang akan memverifikasi bukti log data dan laporan pihak ketiga yang Anda unggah.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        {/* Dimensi 3 */}
+                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-indigo-300 transition-colors">
+                                            <h3 className="font-bold text-slate-800 text-lg mb-2"><i className="fa-solid fa-business-time text-indigo-500 mr-2"></i> Dimensi 3: Fleksibilitas & Work-Life Balance</h3>
+                                            <p className="text-sm text-slate-500 mb-5 font-medium">Diukur berdasarkan metrik waktu dan batasan kerja. Akan diverifikasi melalui penarikan data <em>Log Absensi / Time-tracker</em>.</p>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Rata-rata Jam Lembur (Per Minggu)</label>
+                                                    <div className="flex items-center gap-2">
+                                                        <input type="number" placeholder="Contoh: 2" className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 font-semibold" />
+                                                        <span className="text-slate-500 font-bold bg-slate-100 px-4 py-3 rounded-xl border">Jam</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Persentase Pengambilan Cuti</label>
+                                                    <div className="flex items-center gap-2">
+                                                        <input type="number" placeholder="Contoh: 85" className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 font-semibold" />
+                                                        <span className="text-slate-500 font-bold bg-slate-100 px-4 py-3 rounded-xl border">%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Dimensi 5 */}
+                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:border-teal-300 transition-colors">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h3 className="font-bold text-slate-800 text-lg"><i className="fa-solid fa-handshake-angle text-teal-500 mr-2"></i> Dimensi 5: Keterlibatan & Kepuasan</h3>
+                                                <span className="bg-rose-100 text-rose-700 px-3 py-1 rounded-md text-xs font-black uppercase tracking-wider">Wajib Pihak Ketiga</span>
+                                            </div>
+                                            <p className="text-sm text-slate-500 mb-6 font-medium">Untuk mencegah manipulasi *conflict of interest*, survei kepuasan (eNPS) <strong>wajib</strong> dilakukan dan dirilis oleh vendor independen.</p>
+                                            
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Rasio Turnover Karyawan Tahunan</label>
+                                                    <div className="flex items-center gap-2">
+                                                        <input type="number" placeholder="Contoh: 5" className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50 font-semibold" />
+                                                        <span className="text-slate-500 font-bold bg-slate-100 px-4 py-3 rounded-xl border">%</span>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Skor Indeks Kepuasan (eNPS)</label>
+                                                    <input type="number" placeholder="Contoh: 75" className="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-teal-500 bg-slate-50 font-semibold" />
+                                                </div>
+                                            </div>
+
+                                            <div className="border-2 border-dashed border-teal-200 bg-teal-50/30 rounded-xl p-6 text-center hover:bg-teal-50 hover:border-teal-400 transition-colors cursor-pointer group">
+                                                <div className="w-12 h-12 bg-white text-teal-600 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform shadow-sm border border-teal-100">
+                                                    <i className="fa-solid fa-file-contract text-xl"></i>
+                                                </div>
+                                                <h4 className="text-sm font-bold text-slate-800 mb-1">Unggah Laporan Survei Independen</h4>
+                                                <p className="text-slate-500 text-xs font-medium">Wajib melampirkan laporan resmi dari vendor (Format PDF)</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="mt-8 flex justify-end">
+                                        <button className="w-full sm:w-auto bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
+                                            Simpan Metrik Data
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
